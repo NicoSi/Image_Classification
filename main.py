@@ -1,12 +1,28 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Nov  2 18:58:07 2017
+Éditeur de Spyder
 
-@author: Nicolas
+Ceci est un script temporaire.
 """
-import tensorflow as tf
 
-a = tf.truncated_normal([16,128,128,3])
-sess = tf.Session()
-sess.run(tf.initialize_all_variables())
-sess.run(tf.shape(a))
+import numpy as np
+import pandas as pd
+from Preprocess import data
+
+train_path = 'train'
+test_path = 'test'
+
+list_class = ['cats', 'dogs']
+
+height = 150
+width = 150
+channels = 3
+
+d = data(list_class, train_path, test_path, 1000, 400, height, width, channels)
+
+train_images = d.train_images
+test_images = d.train_images
+
+labels = d.train_labels
+
+d.show(200)
