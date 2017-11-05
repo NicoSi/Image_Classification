@@ -19,6 +19,10 @@ class data:
        - hauteur de l'image
        - largeur de l'image
        - nombre de canaux
+       - données d'entrainements explicatives (train_X)
+       - données de tests explicatives (test_X)
+       - données d'entrainements cilbes (train_Y)
+       - données de tests explicatives (test_Y)
        """
    def __init__(self, list_class, train_path, test_path, train_count, test_count, height, width, channels):
        #constructeur
@@ -29,37 +33,42 @@ class data:
         self.height = height
         self.width = width
         self.channels = channels                
-        self.train_labels = []
-        self.test_labels = []
+        self.Y_train = []
+        self.Y_test = []
                 
         #liste des chemins vers les images
         self.train_images_class_0 = self.read_image_train(self.train_path, 0)
         self.train_images_class_1 = self.read_image_train(self.train_path, 1)
         self.train_images = self.train_images_class_0[:train_count] + self.train_images_class_1[:train_count]       
-        
-        seed = 448
-        random.seed(seed)
-        
+
         random.shuffle(self.train_images)
-        random.shuffle(self.train_labels)
+        
+        for i in self.train_images:
+            if list_class[0] in i:
+                self.Y_train.append(0)
+            else:
+                self.Y_train.append(1)
         
         self.test_images_class_0 = self.read_image_test(self.train_path, 0)
         self.test_images_class_1 = self.read_image_test(self.train_path, 1)
-        self.test_images = self.test_images_class_0[:test_count] + self.test_images_class_1[:test_count]
+        self.test_images = self.test_images_class_0[:test_count] + self.test_images_class_1[:test_count]    
         
         random.shuffle(self.test_images)
-        random.shuffle(self.test_labels)        
-        
 
-        self.train = self.data_process(self.train_images)
-        self.test = self.data_process(self.test_images)
+        #Répartition des cibles
+        for i in self.test_images:
+            if list_class[0] in i:
+                self.Y_test.append(0)
+            else:
+                self.Y_test.append(1)
         
-        print("Train shape: {}".format(self.train.shape))
-        print("Test shape: {}".format(self.test.shape))
+        #Données (features) d'entrainement
+        self.X_train = self.data_process(self.train_images)
+        #Données (features) test
+        self.X_test = self.data_process(self.test_images)
         
-        sns.countplot(self.train_labels)   
-        
-              
+        print("Train shape: {}".format(self.X_train.shape))
+        print("Test shape: {}".format(self.X_test.shape))
         
    def read_image_train(self, path, cl):
       
@@ -68,7 +77,7 @@ class data:
        for element in os.listdir(path + '/' + self.list_class[cl]) :
            
            data.append(path + '/' + self.list_class[cl] + '/' + element)
-           self.train_labels.append(cl)
+           #self.train_labels.append(cl)
               
        return data
    
@@ -79,7 +88,7 @@ class data:
        for element in os.listdir(path + '/' + self.list_class[cl]) :
            
            data.append(path + '/' + self.list_class[cl] + '/' + element)
-           self.test_labels.append(cl)
+           #self.test_labels.append(cl)
               
        return data
            
@@ -96,7 +105,7 @@ class data:
             
             img = self.import_image(element)
             data[i] = img.T
-            if i%250 == 0: print('Processed {} of {}'.format(i, count))
+            if i%1000 == 0: print('Processed {} of {}'.format(i, count))
                 
             i = i + 1     
                 
